@@ -1,0 +1,48 @@
+# Archivos del sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Archivos de IDE/Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# Archivos temporales
+*.log
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# Node modules (si usas npm en el futuro)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de build (si usas herramientas de build)
+dist/
+build/
+*.zip
+*.crx
+*.pem
+
+# Archivos de configuración local
+.env
+.env.local
+config.local.js
+
+# Archivos de prueba
+coverage/
+.nyc_output/
