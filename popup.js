@@ -105,7 +105,10 @@ async function detectCurrentPlatform() {
       const url = tab.url.toLowerCase();
       let platform = 'generic';
       
-      if (url.includes('moodle')) {
+      // Detectar específicamente Aula Digital SENCE
+      if (url.includes('auladigital.sence.cl')) {
+        platform = 'sence';
+      } else if (url.includes('moodle')) {
         platform = 'moodle';
       } else if (url.includes('blackboard')) {
         platform = 'blackboard';

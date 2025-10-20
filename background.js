@@ -137,9 +137,11 @@ function isEducationalPlatform(url) {
   if (!url) return false;
   
   const educationalKeywords = [
+    'auladigital.sence.cl',      // Aula Digital SENCE (prioridad)
     'moodle', 'blackboard', 'canvas', 'classroom', 'aula',
     'educativa', 'universidad', 'campus', 'virtual',
-    'elearning', 'lms', 'brightspace', 'schoology'
+    'elearning', 'lms', 'brightspace', 'schoology',
+    'sence', 'capacitacion', 'capacitación'
   ];
   
   const urlLower = url.toLowerCase();

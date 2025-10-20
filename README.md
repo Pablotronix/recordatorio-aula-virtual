@@ -2,7 +2,13 @@
 
 Una extensión de Chrome diseñada para ayudar a estudiantes a mantener su actividad en plataformas de aulas virtuales mediante recordatorios automáticos para hacer clic en enlaces.
 
-## 🎯 Propósito
+## 🎯 Optimizado para Aula Digital SENCE
+
+**¡Especialmente configurado para [Aula Digital SENCE](https://auladigital.sence.cl/)!** 🇨🇱
+
+Esta extensión detecta automáticamente cuando estás en la plataforma de SENCE y optimiza la detección de enlaces y módulos SCORM. Ver [Guía específica para SENCE](./SENCE-CONFIG.md).
+
+## 💡 Propósito
 
 Muchas plataformas educativas solo contabilizan las horas efectivas conectadas cuando el estudiante tiene alguna actividad (como hacer clic en enlaces). Esta extensión envía recordatorios configurables cada 30-40 minutos para ayudar a los estudiantes a mantener su sesión activa.
 
@@ -62,6 +68,10 @@ Muchas plataformas educativas solo contabilizan las horas efectivas conectadas c
 
 ## 🏫 Plataformas Soportadas
 
+### ⭐ Soporte Premium:
+- **Aula Digital SENCE** 🇨🇱 - Detección optimizada de módulos SCORM, evaluaciones y recursos
+  - Ver [guía específica para SENCE](./SENCE-CONFIG.md)
+
 ### Detección automática para:
 - **Moodle** - Detecta módulos, cursos, tareas, foros
 - **Blackboard** - Identifica contenido, evaluaciones, discusiones
@@ -71,10 +81,12 @@ Muchas plataformas educativas solo contabilizan las horas efectivas conectadas c
 
 ### Tipos de enlaces detectados:
 - 📚 Módulos y lecciones
+- 🎓 Módulos SCORM (especialmente para SENCE)
 - 📝 Tareas y evaluaciones
 - 💬 Foros y discusiones
 - 📊 Quizzes y exámenes
 - 📖 Contenido del curso
+- 📄 Páginas y recursos
 
 ## ⚙️ Configuración Avanzada
 

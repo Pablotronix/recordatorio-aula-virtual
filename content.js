@@ -45,7 +45,10 @@ function detectPlatform() {
   const url = window.location.href.toLowerCase();
   const title = document.title.toLowerCase();
   
-  if (url.includes('moodle') || title.includes('moodle')) {
+  // Detectar específicamente Aula Digital SENCE
+  if (url.includes('auladigital.sence.cl')) {
+    return 'sence';
+  } else if (url.includes('moodle') || title.includes('moodle')) {
     return 'moodle';
   } else if (url.includes('blackboard') || title.includes('blackboard')) {
     return 'blackboard';
@@ -83,6 +86,26 @@ function findRelevantLinks() {
   let selectors = [];
   
   switch (platform) {
+    case 'sence':
+      // Selectores específicos para Aula Digital SENCE (basado en Moodle)
+      selectors = [
+        'a[href*="mod/"]',           // Enlaces a módulos
+        'a[href*="course/view"]',    // Enlaces de curso
+        'a[href*="quiz/"]',          // Cuestionarios
+        'a[href*="assign/"]',        // Tareas
+        'a[href*="forum/"]',         // Foros
+        'a[href*="resource/"]',      // Recursos
+        'a[href*="page/"]',          // Páginas
+        'a[href*="scorm/"]',         // SCORM (común en SENCE)
+        '.activity-link',            // Actividades generales
+        '.course-content a',         // Contenido del curso
+        '.section a',                // Enlaces en secciones
+        '.activityinstance a',       // Instancias de actividad
+        'a.aalink',                  // Enlaces de actividad
+        '.activity a'                // Enlaces en actividades
+      ];
+      break;
+    
     case 'moodle':
       selectors = [
         'a[href*="mod/"]',           // Enlaces a módulos
@@ -175,12 +198,19 @@ function getLinkType(element) {
   const text = element.textContent.toLowerCase();
   const href = element.href.toLowerCase();
   
-  if (href.includes('quiz') || text.includes('examen') || text.includes('quiz')) {
+  // Para SENCE y Moodle
+  if (href.includes('scorm')) {
+    return 'scorm';
+  } else if (href.includes('quiz') || text.includes('examen') || text.includes('quiz') || text.includes('cuestionario')) {
     return 'quiz';
-  } else if (href.includes('assign') || text.includes('tarea')) {
+  } else if (href.includes('assign') || text.includes('tarea') || text.includes('entrega')) {
     return 'assignment';
-  } else if (href.includes('forum') || text.includes('foro')) {
+  } else if (href.includes('forum') || text.includes('foro') || text.includes('discusión')) {
     return 'forum';
+  } else if (href.includes('resource') || text.includes('recurso') || text.includes('archivo')) {
+    return 'resource';
+  } else if (href.includes('page') || text.includes('página')) {
+    return 'page';
   } else if (href.includes('mod/') || text.includes('módulo')) {
     return 'module';
   }
