@@ -139,6 +139,9 @@ async function detectCurrentPlatform() {
 // Probar notificación
 async function testNotification() {
   try {
+    // Reproducir sonido de campana antes de enviar el mensaje
+    playBellSound();
+    
     await chrome.runtime.sendMessage({
       action: 'showTestNotification'
     });
@@ -155,5 +158,18 @@ async function testNotification() {
     }, 2000);
   } catch (error) {
     console.error('Error enviando notificación de prueba:', error);
+  }
+}
+
+// Reproducir sonido de campana
+function playBellSound() {
+  try {
+    const audio = new Audio();
+    audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE';
+    audio.volume = 0.7;
+    audio.play().catch(e => console.log('No se pudo reproducir sonido:', e));
+    console.log('🔔 Sonido de campana reproducido desde popup');
+  } catch (error) {
+    console.log('Error reproduciendo campana:', error);
   }
 }
