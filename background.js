@@ -1,8 +1,5 @@
 // Background script - Service Worker para Chrome Extension V3
 
-// Importar utilidad de sonido
-importScripts('bell-sound.js');
-
 // Estado global
 let settings = {
   enabled: false,
@@ -160,11 +157,31 @@ function isEducationalPlatform(url) {
   return educationalKeywords.some(keyword => urlLower.includes(keyword));
 }
 
+// Reproducir sonido de campana usando offscreen document o content script
+async function playBellSound() {
+  try {
+    // Intentar reproducir sonido en la página activa si hay una
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tabs.length > 0 && tabs[0].id) {
+      try {
+        await chrome.tabs.sendMessage(tabs[0].id, { 
+          action: 'playBellSound' 
+        });
+        console.log('🔔 Sonido enviado al content script');
+      } catch (error) {
+        console.log('No se pudo enviar sonido al content script:', error.message);
+      }
+    }
+  } catch (error) {
+    console.log('Error reproduciendo campana:', error);
+  }
+}
+
 // Mostrar notificación
 async function showNotification(title, message, options = {}) {
   try {
     // Reproducir sonido de campana
-    playBellSound();
+    await playBellSound();
     
     const notificationOptions = {
       type: 'basic',
@@ -179,7 +196,6 @@ async function showNotification(title, message, options = {}) {
     
     const notificationId = await chrome.notifications.create('activityReminder' + Date.now(), notificationOptions);
     console.log('✅ Notificación mostrada:', title, 'ID:', notificationId);
-    console.log('🔔 Sonido de campana reproducido');
     return notificationId;
   } catch (error) {
     console.error('❌ Error mostrando notificación:', error);

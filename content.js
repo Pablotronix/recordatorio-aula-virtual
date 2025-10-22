@@ -76,8 +76,25 @@ function handleMessage(message, sender, sendResponse) {
     case 'removeHighlights':
       removeHighlights();
       break;
+    case 'playBellSound':
+      playBellSoundInPage();
+      sendResponse({ success: true });
+      break;
   }
   return true;
+}
+
+// Reproducir sonido de campana en la página
+function playBellSoundInPage() {
+  try {
+    const audio = new Audio();
+    audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE';
+    audio.volume = 0.5;
+    audio.play().catch(e => console.log('No se pudo reproducir sonido:', e));
+    console.log('🔔 Sonido de campana reproducido en la página');
+  } catch (error) {
+    console.log('Error reproduciendo campana:', error);
+  }
 }
 
 // Encontrar enlaces relevantes según la plataforma
