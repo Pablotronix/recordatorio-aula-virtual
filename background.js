@@ -157,22 +157,29 @@ function isEducationalPlatform(url) {
   return educationalKeywords.some(keyword => urlLower.includes(keyword));
 }
 
-// Reproducir sonido de campana usando offscreen document o content script
+// Reproducir sonido de campana usando offscreen document
 async function playBellSound() {
   try {
-    // Intentar reproducir sonido en la página activa si hay una
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tabs.length > 0 && tabs[0].id) {
-      try {
-        await chrome.tabs.sendMessage(tabs[0].id, { 
-          action: 'playBellSound' 
-        });
-        console.log('🔔 Sonido enviado al content script');
-      } catch (error) {
-        // Silenciosamente ignorar si el content script no está disponible
-        console.log('ℹ️ Content script no disponible, notificación sin sonido');
-      }
+    // Verificar si ya existe un offscreen document
+    const existingContexts = await chrome.runtime.getContexts({
+      contextTypes: ['OFFSCREEN_DOCUMENT']
+    });
+    
+    // Crear offscreen document si no existe
+    if (existingContexts.length === 0) {
+      await chrome.offscreen.createDocument({
+        url: 'offscreen.html',
+        reasons: ['AUDIO_PLAYBACK'],
+        justification: 'Reproducir sonido de campana en notificaciones'
+      });
+      console.log('� Offscreen document creado');
     }
+    
+    // Enviar mensaje para reproducir sonido
+    await chrome.runtime.sendMessage({ 
+      action: 'playBellSound' 
+    });
+    console.log('🔔 Sonido de campana enviado a offscreen document');
   } catch (error) {
     console.log('ℹ️ No se pudo reproducir sonido:', error.message);
   }
