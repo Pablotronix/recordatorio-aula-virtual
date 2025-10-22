@@ -169,11 +169,12 @@ async function playBellSound() {
         });
         console.log('🔔 Sonido enviado al content script');
       } catch (error) {
-        console.log('No se pudo enviar sonido al content script:', error.message);
+        // Silenciosamente ignorar si el content script no está disponible
+        console.log('ℹ️ Content script no disponible, notificación sin sonido');
       }
     }
   } catch (error) {
-    console.log('Error reproduciendo campana:', error);
+    console.log('ℹ️ No se pudo reproducir sonido:', error.message);
   }
 }
 

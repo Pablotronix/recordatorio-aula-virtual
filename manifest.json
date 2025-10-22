@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Recordatorio Aula Virtual",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Mantén tu actividad en aulas virtuales con recordatorios automáticos. Optimizado para Aula Digital SENCE.",
   "author": "Pablo Cutino",
   "homepage_url": "https://github.com/Pablotronix/recordatorio-aula-virtual",
