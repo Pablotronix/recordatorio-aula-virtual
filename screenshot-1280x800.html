@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot 1280x800 - Recordatorio Aula Virtual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 1280px;
+            height: 800px;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .hero-text {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+        
+        .hero-text h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .hero-text p {
+            font-size: 24px;
+            opacity: 0.9;
+        }
+        
+        .popup-container {
+            width: 350px;
+            min-height: 450px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 1s ease-out;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h2 {
+            margin: 0 0 20px 0;
+            font-size: 22px;
+            text-align: center;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .icon {
+            font-size: 32px;
+        }
+        
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: white;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4CAF50;
+            transition: .4s;
+            border-radius: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            right: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(76, 175, 80, 0.4);
+            font-weight: 600;
+            color: white;
+            font-size: 15px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+        
+        .info {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 15px;
+            line-height: 1.5;
+            text-align: center;
+            color: white;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+            color: white;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-text">
+        <h1>🔔 Recordatorio Aula Virtual</h1>
+        <p>Mantén tu actividad en aulas virtuales automáticamente</p>
+        <div class="badge">✨ Optimizado para Aula Digital SENCE</div>
+    </div>
+    
+    <div class="popup-container">
+        <div class="container">
+            <h2>🔔 Recordatorio Aula Virtual</h2>
+            
+            <div class="setting-group">
+                <label for="enabled">Activar recordatorios:</label>
+                <label class="toggle-switch">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="setting-group">
+                <label for="interval">Intervalo (minutos):</label>
+                <input type="number" id="interval" value="30" readonly>
+            </div>
+            
+            <div class="setting-group">
+                <label for="platform">Plataforma detectada:</label>
+                <select id="platform">
+                    <option value="sence" selected>Aula Digital SENCE</option>
+                </select>
+            </div>
+            
+            <div class="status">
+                Estado: Activo (cada 30 min)
+            </div>
+            
+            <button>Probar Notificación</button>
+            
+            <div class="info">
+                Esta extensión te ayudará a mantener la actividad en tu aula virtual 
+                recordándote hacer clic en enlaces periódicamente.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

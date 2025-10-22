@@ -1,5 +1,8 @@
 // Background script - Service Worker para Chrome Extension V3
 
+// Importar utilidad de sonido
+importScripts('bell-sound.js');
+
 // Estado global
 let settings = {
   enabled: false,
@@ -22,15 +25,21 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 // Escuchar mensajes del popup y content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('📨 Mensaje recibido:', message.action);
+  
   switch (message.action) {
     case 'updateSettings':
       handleUpdateSettings(message.settings);
+      sendResponse({ success: true });
       break;
     case 'showTestNotification':
-      showNotification('🔔 Notificación de prueba', 'La extensión está funcionando correctamente!');
-      break;
+      showNotification('🔔 Notificación de prueba', 'La extensión está funcionando correctamente!')
+        .then(() => sendResponse({ success: true }))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+      return true; // Mantener el canal abierto para respuesta asíncrona
     case 'userActivity':
       handleUserActivity(message.data);
+      sendResponse({ success: true });
       break;
     case 'getSettings':
       sendResponse(settings);
@@ -41,7 +50,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Manejar alarmas
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name === 'activityReminder' && settings.enabled) {
+  console.log('⏰ Alarma disparada:', alarm.name, 'Settings enabled:', settings.enabled);
+  
+  if (alarm.name.startsWith('activityReminder') && settings.enabled) {
+    console.log('🔔 Mostrando recordatorio de actividad...');
     await showActivityReminder();
   }
 });
@@ -151,18 +163,28 @@ function isEducationalPlatform(url) {
 // Mostrar notificación
 async function showNotification(title, message, options = {}) {
   try {
+    // Reproducir sonido de campana
+    playBellSound();
+    
     const notificationOptions = {
       type: 'basic',
-      iconUrl: 'icons/icon48.png',
+      iconUrl: 'icons/icon128.png',
       title: title,
       message: message,
+      priority: 2,
+      requireInteraction: false,
+      silent: false, // Asegurar que no sea silenciosa
       ...options
     };
     
-    await chrome.notifications.create('activityReminder', notificationOptions);
-    console.log('Notificación mostrada:', title);
+    const notificationId = await chrome.notifications.create('activityReminder' + Date.now(), notificationOptions);
+    console.log('✅ Notificación mostrada:', title, 'ID:', notificationId);
+    console.log('🔔 Sonido de campana reproducido');
+    return notificationId;
   } catch (error) {
-    console.error('Error mostrando notificación:', error);
+    console.error('❌ Error mostrando notificación:', error);
+    // Mostrar alerta como fallback
+    alert('⚠️ Error de notificaciones. Verifica permisos en Configuración del Sistema > Notificaciones > Chrome');
   }
 }
 
