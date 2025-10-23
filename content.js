@@ -378,24 +378,44 @@ function showInfoMessage(text) {
 
 // Configurar rastreo de actividad
 function setupActivityTracking() {
-  // Rastrear clics en enlaces
+  // Rastrear clics en enlaces (con manejo seguro de mensajes)
   document.addEventListener('click', (e) => {
-    if (e.target.tagName === 'A') {
+    // Buscar elemento <a> en el path del evento (por si se hace click en un hijo)
+    const path = e.composedPath ? e.composedPath() : (e.path || []);
+    let anchor = null;
+
+    if (path && path.length) {
+      anchor = path.find(node => node && node.tagName === 'A');
+    }
+
+    // Fallback: si no hay path, revisar e.target
+    if (!anchor && e.target && e.target.tagName === 'A') {
+      anchor = e.target;
+    }
+
+    if (anchor) {
       activityTracker.lastActivity = Date.now();
       activityTracker.clickCount++;
-      
-      // Informar al background script
-      chrome.runtime.sendMessage({
-        action: 'userActivity',
-        data: {
-          type: 'link_click',
-          url: e.target.href,
-          text: e.target.textContent.trim(),
-          timestamp: Date.now()
-        }
-      });
-      
-      console.log('Clic en enlace detectado:', e.target.textContent.trim());
+
+      // Informar al background script de forma segura
+      try {
+        chrome.runtime.sendMessage({
+          action: 'userActivity',
+          data: {
+            type: 'link_click',
+            url: anchor.href,
+            text: (anchor.textContent || '').trim(),
+            timestamp: Date.now()
+          }
+        }, (response) => {
+          // Response no crítico. Ignorar.
+        });
+      } catch (err) {
+        // Evitar que se lance una excepción visible en la página (p. ej. "Extension context invalidated")
+        console.log('ℹ️ No se pudo enviar actividad al background (ignored):', err);
+      }
+
+      console.log('Clic en enlace detectado:', (anchor.textContent || '').trim());
     }
   });
 }

@@ -157,31 +157,52 @@ function isEducationalPlatform(url) {
   return educationalKeywords.some(keyword => urlLower.includes(keyword));
 }
 
-// Reproducir sonido de campana usando offscreen document
+// Reproducir sonido de campana usando offscreen document (con comprobaciones seguras)
 async function playBellSound() {
   try {
-    // Verificar si ya existe un offscreen document
-    const existingContexts = await chrome.runtime.getContexts({
-      contextTypes: ['OFFSCREEN_DOCUMENT']
-    });
-    
-    // Crear offscreen document si no existe
-    if (existingContexts.length === 0) {
-      await chrome.offscreen.createDocument({
-        url: 'offscreen.html',
-        reasons: ['AUDIO_PLAYBACK'],
-        justification: 'Reproducir sonido de campana en notificaciones'
-      });
-      console.log('� Offscreen document creado');
+    // Detectar si la API offscreen está disponible y si ya hay un documento offscreen
+    let hasOffscreen = false;
+
+    try {
+      if (chrome.offscreen && typeof chrome.offscreen.hasDocument === 'function') {
+        hasOffscreen = await chrome.offscreen.hasDocument();
+      }
+    } catch (err) {
+      // No todos los navegadores/versión exponen hasDocument; seguiremos intentando crear uno
+      hasOffscreen = false;
     }
-    
-    // Enviar mensaje para reproducir sonido
-    await chrome.runtime.sendMessage({ 
-      action: 'playBellSound' 
+
+    // Crear offscreen document si no existe
+    if (!hasOffscreen) {
+      try {
+        await chrome.offscreen.createDocument({
+          url: 'offscreen.html',
+          reasons: ['AUDIO_PLAYBACK'],
+          justification: 'Reproducir sonido de campana en notificaciones'
+        });
+        console.log('📄 Offscreen document creado');
+      } catch (createError) {
+        // Si la creación falla, informar y continuar (no bloquear la notificación)
+        console.log('ℹ️ No se pudo crear offscreen document:', createError);
+      }
+    }
+
+    // Enviar mensaje para reproducir sonido al runtime de forma segura
+    await new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage({ action: 'playBellSound' }, (resp) => {
+          // La respuesta no es crítica; resolvemos de todos modos
+          resolve(resp);
+        });
+      } catch (sendErr) {
+        console.log('ℹ️ Error enviando mensaje para reproducir sonido:', sendErr);
+        resolve();
+      }
     });
-    console.log('🔔 Sonido de campana enviado a offscreen document');
+
+    console.log('🔔 Intento de reproducir sonido enviado (offscreen/runtime)');
   } catch (error) {
-    console.log('ℹ️ No se pudo reproducir sonido:', error.message);
+    console.log('ℹ️ No se pudo reproducir sonido:', error && error.message ? error.message : error);
   }
 }
 
