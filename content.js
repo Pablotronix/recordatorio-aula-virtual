@@ -271,9 +271,15 @@ function isValidLink(element) {
 
 // Determinar tipo de enlace
 function getLinkType(element) {
-  const text = element.textContent.toLowerCase();
-  const href = element.href.toLowerCase();
-  
+  const text = (element.textContent || '').toLowerCase();
+  // Usar href, data-href, data-url, o '' si no existe
+  let href = '';
+  if (element) {
+    href = (element.getAttribute && (element.getAttribute('href') || element.dataset?.href || element.dataset?.url || element.getAttribute('data-href'))) || '';
+    if (!href && element.href) href = element.href;
+  }
+  href = (href || '').toLowerCase();
+
   // Para SENCE y Moodle
   if (href.includes('scorm')) {
     return 'scorm';
@@ -290,7 +296,7 @@ function getLinkType(element) {
   } else if (href.includes('mod/') || text.includes('módulo')) {
     return 'module';
   }
-  
+
   return 'content';
 }
 
