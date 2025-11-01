@@ -21,6 +21,7 @@ let activityTracker = {
   const platform = detectPlatform();
   setupActivityTracking();
   findRelevantLinks();
+  observeDomChanges();
   
   // Escuchar mensajes del background y popup
   chrome.runtime.onMessage.addListener(handleMessage);
@@ -170,15 +171,38 @@ function findRelevantLinks() {
       ];
   }
   
+  // Añadir selectores alternativos para elementos sin href real
+  const extraSelectors = [
+    'a[href^="javascript:"]',
+    '[data-href]',
+    '[data-url]',
+    '[role="link"]',
+    'button[data-href]',
+    '[onclick]'
+  ];
+
   const links = [];
-  selectors.forEach(selector => {
+  const allSelectors = selectors.concat(extraSelectors);
+  allSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     elements.forEach(el => {
-      if (el.textContent.trim() && isValidLink(el)) {
+      const text = (el.textContent || '').trim();
+      // Determinar href candidato: href real, data-href, data-url, o onclick como fallback
+      let hrefCandidate = el.getAttribute('href') || el.dataset?.href || el.dataset?.url || el.getAttribute('data-href') || '';
+      const onclickAttr = el.getAttribute('onclick') || '';
+      if ((!hrefCandidate || hrefCandidate.trim() === '' || hrefCandidate.startsWith('javascript:')) && onclickAttr) {
+        // intentar extraer URL desde onclick si hay patterns comunes
+        const match = onclickAttr.match(/location\.href\s*=\s*['"]([^'\"]+)['"]/i);
+        if (match && match[1]) hrefCandidate = match[1];
+      }
+
+      // Considerar enlace válido si tiene texto y alguna referencia (href, data-href, onclick parseado)
+      if (text && (isValidLink(el) || hrefCandidate)) {
         links.push({
           element: el,
-          text: el.textContent.trim(),
-          href: el.href,
+          text: text,
+          href: hrefCandidate || (el.href || ''),
+          rawOnclick: onclickAttr || null,
           type: getLinkType(el)
         });
       }
@@ -190,10 +214,43 @@ function findRelevantLinks() {
   return links;
 }
 
+// Debounce helper
+function debounce(fn, delay = 300) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// Observar cambios en el DOM y re-ejecutar la búsqueda de enlaces (SPA, carga dinámica)
+function observeDomChanges() {
+  try {
+    const debounced = debounce(() => {
+      findRelevantLinks();
+      if (isHighlighting) {
+        // Si estaba resaltando, actualizar resaltados
+        removeHighlights();
+        highlightRelevantLinks();
+      }
+    }, 500);
+
+    const observer = new MutationObserver(debounced);
+    observer.observe(document.documentElement || document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    console.log('🔎 Observador DOM activo para detectar cambios y refrescar enlaces');
+  } catch (err) {
+    console.log('ℹ️ No se pudo iniciar el observador DOM:', err);
+  }
+}
+
 // Validar si es un enlace útil
 function isValidLink(element) {
   const text = element.textContent.trim().toLowerCase();
-  const href = element.href || '';
+  const href = (element.getAttribute && (element.getAttribute('href') || element.dataset?.href || element.dataset?.url || element.getAttribute('data-href'))) || '';
   
   // Excluir enlaces no útiles
   const excludePatterns = [
@@ -207,7 +264,9 @@ function isValidLink(element) {
     text.includes(pattern) || href.toLowerCase().includes(pattern)
   );
   
-  return !isExcluded && text.length > 2 && href.length > 0;
+  // También considerar válidas las que tienen onclick o data-href aunque href sea javascript:void(0)
+  const hasOnclick = !!(element.getAttribute && element.getAttribute('onclick'));
+  return !isExcluded && text.length > 2 && (href.length > 0 || hasOnclick);
 }
 
 // Determinar tipo de enlace
