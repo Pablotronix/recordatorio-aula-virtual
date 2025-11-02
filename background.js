@@ -1,5 +1,16 @@
 // Background script - Service Worker para Chrome Extension V3
 
+// Log con timestamp
+function logWithTime(...args) {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  const ms = String(now.getMilliseconds()).padStart(3, '0');
+  const prefix = `[${hh}:${mm}:${ss}.${ms}]`;
+  console.log(prefix, ...args);
+}
+
 // Estado global
 let settings = {
   enabled: false,
@@ -9,7 +20,7 @@ let settings = {
 
 // Inicialización
 chrome.runtime.onInstalled.addListener(async () => {
-  console.log('Extensión Recordatorio Aula Virtual instalada');
+  logWithTime('Extensión Recordatorio Aula Virtual instalada');
   
   // Cargar configuración inicial
   await loadSettings();
@@ -22,7 +33,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 // Escuchar mensajes del popup y content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('📨 Mensaje recibido:', message.action);
+  logWithTime('📨 Mensaje recibido:', message.action);
   
   switch (message.action) {
     case 'updateSettings':
@@ -47,10 +58,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Manejar alarmas
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-  console.log('⏰ Alarma disparada:', alarm.name, 'Settings enabled:', settings.enabled);
+  logWithTime('⏰ Alarma disparada:', alarm.name, 'Settings enabled:', settings.enabled);
   
   if (alarm.name.startsWith('activityReminder') && settings.enabled) {
-    console.log('🔔 Mostrando recordatorio de actividad...');
+    logWithTime('🔔 Mostrando recordatorio de actividad...');
     await showActivityReminder();
   }
 });
@@ -64,7 +75,7 @@ async function loadSettings() {
       interval: result.interval || 30,
       platform: result.platform || 'auto'
     };
-    console.log('Configuración cargada:', settings);
+    logWithTime('Configuración cargada:', settings);
   } catch (error) {
     console.error('Error cargando configuración:', error);
   }
@@ -72,7 +83,7 @@ async function loadSettings() {
 
 // Actualizar configuración
 async function handleUpdateSettings(newSettings) {
-  console.log('Actualizando configuración:', newSettings);
+  logWithTime('Actualizando configuración:', newSettings);
   
   settings = { ...settings, ...newSettings };
   
@@ -96,7 +107,7 @@ async function createAlarm() {
       periodInMinutes: settings.interval
     });
     
-    console.log(`Alarma creada para cada ${settings.interval} minutos`);
+    logWithTime(`Alarma creada para cada ${settings.interval} minutos`);
   } catch (error) {
     console.error('Error creando alarma:', error);
   }
@@ -132,7 +143,7 @@ async function showActivityReminder() {
             platform: settings.platform
           });
         } catch (error) {
-          console.log('No se pudo comunicar con el content script:', error);
+          logWithTime('No se pudo comunicar con el content script:', error);
         }
       }
     }
@@ -180,10 +191,9 @@ async function playBellSound() {
           reasons: ['AUDIO_PLAYBACK'],
           justification: 'Reproducir sonido de campana en notificaciones'
         });
-        console.log('📄 Offscreen document creado');
+        logWithTime('📄 Offscreen document creado');
       } catch (createError) {
-        // Si la creación falla, informar y continuar (no bloquear la notificación)
-        console.log('ℹ️ No se pudo crear offscreen document:', createError);
+        logWithTime('ℹ️ No se pudo crear offscreen document:', createError);
       }
     }
 
@@ -195,14 +205,14 @@ async function playBellSound() {
           resolve(resp);
         });
       } catch (sendErr) {
-        console.log('ℹ️ Error enviando mensaje para reproducir sonido:', sendErr);
+        logWithTime('ℹ️ Error enviando mensaje para reproducir sonido:', sendErr);
         resolve();
       }
     });
 
-    console.log('🔔 Intento de reproducir sonido enviado (offscreen/runtime)');
+    logWithTime('🔔 Intento de reproducir sonido enviado (offscreen/runtime)');
   } catch (error) {
-    console.log('ℹ️ No se pudo reproducir sonido:', error && error.message ? error.message : error);
+    logWithTime('ℹ️ No se pudo reproducir sonido:', error && error.message ? error.message : error);
   }
 }
 
@@ -224,7 +234,7 @@ async function showNotification(title, message, options = {}) {
     };
     
     const notificationId = await chrome.notifications.create('activityReminder' + Date.now(), notificationOptions);
-    console.log('✅ Notificación mostrada:', title, 'ID:', notificationId);
+    logWithTime('✅ Notificación mostrada:', title, 'ID:', notificationId);
     return notificationId;
   } catch (error) {
     console.error('❌ Error mostrando notificación:', error);
@@ -274,7 +284,7 @@ chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIn
 
 // Manejar actividad del usuario
 function handleUserActivity(data) {
-  console.log('Actividad del usuario detectada:', data);
+  logWithTime('Actividad del usuario detectada:', data);
   // Aquí se podría implementar lógica para rastrear la actividad
   // y ajustar los recordatorios en consecuencia
 }
